@@ -1,0 +1,30 @@
+.wp-list-table {
+  width: 100%;
+  margin-bottom: 1.5em;
+  border: 1px solid #e5e5e5;
+  border-collapse: collapse;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+  background-color: #fff;
+}
+
+.wp-list-table th {
+  padding: 10px;
+  background-color: #f1f1f1;
+  border-top: 4px solid #32373c;
+  border-bottom: 1px solid #e5e5e5;
+  font-weight: 600;
+  text-align: left;
+}
+
+.wp-list-table td {
+  padding: 10px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.wp-list-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+.delete-icon {
+  cursor: pointer;
+}
