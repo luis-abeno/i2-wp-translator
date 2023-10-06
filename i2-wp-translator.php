@@ -142,15 +142,16 @@ function i2_wp_translator_register_settings()
 }
 add_action('admin_init', 'i2_wp_translator_register_settings');
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['op'])) {
 
     if ($_POST['op'] == 'add_translation') {
+        $slug = str_replace(" ", "_", strtolower($_POST['translation_slug']));
         $save_translation = array(
-            'slug' => $_POST['translation_slug'],
+            'slug' => $slug,
             'translation_en' => $_POST['translation_en'],
             'translation_pt' => $_POST['translation_pt']
         );
-        add_option('i2_translation_' . $_POST['translation_slug'], $save_translation);
+        add_option('i2_translation_' . $slug, $save_translation);
         header('Location: ' . $_SERVER['HTTP_REFERER']);
         exit;
     }
