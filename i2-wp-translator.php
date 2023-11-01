@@ -14,6 +14,7 @@
 function i2_wp_translator_init()
 {
     wp_enqueue_script('i2-wp-translator-js', plugins_url('i2-wp-translator.js', __FILE__), array('jquery'));
+    wp_enqueue_style('i2-wp-translator-front', plugins_url('i2-wp-translator-front.css', __FILE__));
 }
 add_action('wp_enqueue_scripts', 'i2_wp_translator_init');
 
@@ -30,20 +31,29 @@ function i2_wp_translator_lang_selector()
     $html = '';
 
     $languages = array(
-        'pt-br' => 'PT',
-        'en' => 'EN'
+        'pt-br' => array('flag' => 'br-flag.png', 'code' => 'PT', 'desc' => 'Português'),
+        'en' => array('flag' => 'en-flag.png', 'code' => 'EN', 'desc' => 'English')
     );
 
-    $current_language = get_option('my_translator_current_language', 'pt-br'); // Default language
+    $current_language = isset($_GET['lang']) ? htmlspecialchars($_GET['lang'], ENT_QUOTES, 'UTF-8') : get_option('my_translator_current_language', 'pt-br');
+    $html .= '<div class="my-translator-language-selector" style="position:relative">';
 
-    $html .= '<div class="my-translator-language-selector">';
-    $html .= '<select id="language-selector">';
+    $html .= "<div class='current-lang'>" . $languages[$current_language]['code'] . '<img style="margin-left:10px" src="' . plugin_dir_url(__FILE__) . 'arrow.png" />' . "</div>";
+
+    $html .= '<ul id="language-selector" style="list-style-type:none;position: absolute;z-index: 99;top: 20px;">';
     foreach ($languages as $code => $label) {
-        $selected = ($current_language == $code) ? 'selected' : '';
-        $html .= "<option value='$code' $selected>$label</option>";
+        $image_url = '<img src="' . plugin_dir_url(__FILE__) . $label['flag'] . '" />';
+        $html .= '<li data-lang="' . $code . '">' . $image_url . '&nbsp;&nbsp;' . $label['desc'] . '</li>';
     }
-    $html .= '</select>';
-    $html .= '</div>';
+    $html .= '</ul>';
+
+    // $html .= '<select id="language-selector">';
+    // foreach ($languages as $code => $label) {
+    //     $selected = ($current_language == $code) ? 'selected' : '';
+    //     $html .= "<option value='{$label['code']}' $selected>{$label['desc']}</option>";
+    // }
+    // $html .= '</select>';
+    // $html .= '</div>';
 
     return $html;
 }
@@ -86,14 +96,20 @@ function render_i2_wp_translator_translations_page()
         <h2>I2 Translator: Translations</h2>
 
         <form method="post" action="options.php" style="margin-top:20px">
-            <label for="translation_slug">Translation Slug:</label>
-            <input type="text" id="translation_slug" name="translation_slug" />
+            <div style="display:flex;flex-direction:column">
+                <label for="translation_slug">Translation Slug:</label>
+                <input type="text" id="translation_slug" name="translation_slug" />
+            </div>
 
-            <label for="translation_en">EN Translation:</label>
-            <input type="text" id="translation_en" name="translation_en" />
+            <div style="display:flex;flex-direction:column;margin:15px 0">
+                <label for="translation_en">EN Translation:</label>
+                <textarea id="translation_en" name="translation_en"></textarea>
+            </div>
 
-            <label for="translation_pt">PT Translation:</label>
-            <input type="text" id="translation_pt" name="translation_pt" />
+            <div style="display:flex;flex-direction:column;margin:15px 0">
+                <label for="translation_pt">PT Translation:</label>
+                <textarea id="translation_pt" name="translation_pt"></textarea>
+            </div>
 
             <input type='hidden' name='op' value='add_translation' />
 
@@ -180,7 +196,6 @@ function i2_wp_translator_get_translation($atts)
     // Use $atts['slug'] and $atts['lang'] to retrieve the translation
     $slug = $atts['slug'];
     $lang = $atts['lang'];
-
     $option_value = get_option($slug);
     if ($option_value !== false) {
         if ($lang == "en") {
@@ -190,7 +205,7 @@ function i2_wp_translator_get_translation($atts)
         }
     } else {
         // The option with the specified name does not exist
-        return "Faied to retrieve translation";
+        return "Failed to retrieve translation";
     }
 
     // Return the translation content

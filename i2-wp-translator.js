@@ -8,8 +8,8 @@ jQuery(document).ready(function () {
     $("#language-selector").val(langParam);
   }
 
-  $("#language-selector").change(function () {
-    var selectedLanguage = $(this).val();
+  $("#language-selector li").click(function () {
+    var selectedLanguage = $(this).data("lang");
     // Get the current URL
     var currentUrl = window.location.href;
 
@@ -31,5 +31,9 @@ jQuery(document).ready(function () {
 
     // Reload the page with the updated URL
     window.location.href = updatedUrl;
+  });
+
+  $(".current-lang").click(function () {
+    $("#language-selector").css("display", "block");
   });
 });

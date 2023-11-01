@@ -1,0 +1,18 @@
+#language-selector {
+  display: none;
+}
+
+#language-selector li:hover {
+  background: #e6e4e4;
+}
+
+#language-selector li {
+  font-family: "Noto Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  display: flex;
+  align-items: center;
+  color: #001131;
+}
