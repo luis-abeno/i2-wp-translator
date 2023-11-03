@@ -40,20 +40,14 @@ function i2_wp_translator_lang_selector()
 
     $html .= "<div class='current-lang'>" . $languages[$current_language]['code'] . '<img style="margin-left:10px" src="' . plugin_dir_url(__FILE__) . 'arrow.png" />' . "</div>";
 
-    $html .= '<ul id="language-selector" style="list-style-type:none;position: absolute;z-index: 99;top: 20px;">';
+    $html .= '<ul class="language-selector" style="list-style-type:none;position: absolute;z-index: 99;top: 20px;right:-60px">';
     foreach ($languages as $code => $label) {
         $image_url = '<img src="' . plugin_dir_url(__FILE__) . $label['flag'] . '" />';
         $html .= '<li data-lang="' . $code . '">' . $image_url . '&nbsp;&nbsp;' . $label['desc'] . '</li>';
     }
     $html .= '</ul>';
 
-    // $html .= '<select id="language-selector">';
-    // foreach ($languages as $code => $label) {
-    //     $selected = ($current_language == $code) ? 'selected' : '';
-    //     $html .= "<option value='{$label['code']}' $selected>{$label['desc']}</option>";
-    // }
-    // $html .= '</select>';
-    // $html .= '</div>';
+    $html .= '</div>';
 
     return $html;
 }

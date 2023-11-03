@@ -8,7 +8,7 @@ jQuery(document).ready(function () {
     $("#language-selector").val(langParam);
   }
 
-  $("#language-selector li").click(function () {
+  $(".language-selector li").click(function () {
     var selectedLanguage = $(this).data("lang");
     // Get the current URL
     var currentUrl = window.location.href;
@@ -33,7 +33,19 @@ jQuery(document).ready(function () {
     window.location.href = updatedUrl;
   });
 
-  $(".current-lang").click(function () {
-    $("#language-selector").css("display", "block");
+  $(".current-lang").click(function (e) {
+    e.stopPropagation();
+    if (!$(".language-selector").hasClass("showLang")) {
+      $(".language-selector").addClass("showLang");
+      $(".language-selector").css("display", "block");
+    }
+  });
+
+  $("body").click(function (e) {
+    e.stopPropagation();
+    if ($(".language-selector").hasClass("showLang")) {
+      $(".language-selector").removeClass("showLang");
+      $(".language-selector").css("display", "none");
+    }
   });
 });
