@@ -22,6 +22,7 @@ function admin_enqueue_scripts()
 {
     wp_enqueue_style('i2-wp-translator', plugins_url('i2-wp-translator.css', __FILE__));
     wp_enqueue_style('fa', 'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css');
+    wp_enqueue_script('i2-wp-translator-js', plugins_url('i2-wp-translator-admin.js', __FILE__), array('jquery'));
 }
 add_action('admin_enqueue_scripts', 'admin_enqueue_scripts');
 
@@ -78,6 +79,12 @@ function render_i2_wp_translator_translations_page()
     // Initialize an array to store options that match the prefix
     $filtered_options = array();
 
+    $isEditing = isset($_GET['edit']);
+
+    if ($isEditing) {
+        $edditingOption = $_GET['edit'];
+    }
+
     // Loop through all options and filter the ones with the specified prefix
     foreach ($all_options as $option_name => $option_value) {
         if (strpos($option_name, $prefix) === 0) {
@@ -85,29 +92,46 @@ function render_i2_wp_translator_translations_page()
             // Add it to the filtered options array
             $filtered_options[$option_name] = $option_value;
         }
-    } ?>
+    }
+
+    if ($isEditing) {
+        $edditingOption = get_option($edditingOption);
+    }
+?>
     <div class="wrap">
-        <h2>I2 Translator: Translations</h2>
+        <h2>I2 Translator: Traduções</h2>
 
         <form method="post" action="options.php" style="margin-top:20px">
             <div style="display:flex;flex-direction:column">
                 <label for="translation_slug">Translation Slug:</label>
-                <input type="text" id="translation_slug" name="translation_slug" />
+                <input type="text" id="translation_slug" <?php echo $isEditing ? "readonly" : ""; ?> name="translation_slug" value="<?php echo $isEditing ? trim($edditingOption['slug']) : ''; ?>" />
             </div>
 
             <div style="display:flex;flex-direction:column;margin:15px 0">
                 <label for="translation_en">EN Translation:</label>
-                <textarea id="translation_en" name="translation_en"></textarea>
+                <textarea id="translation_en" name="translation_en"><?php echo $isEditing ? trim($edditingOption['translation_en']) : ''; ?></textarea>
             </div>
 
             <div style="display:flex;flex-direction:column;margin:15px 0">
                 <label for="translation_pt">PT Translation:</label>
-                <textarea id="translation_pt" name="translation_pt"></textarea>
+                <textarea id="translation_pt" name="translation_pt"><?php echo $isEditing ? trim($edditingOption['translation_pt']) : ''; ?></textarea>
             </div>
 
-            <input type='hidden' name='op' value='add_translation' />
+            <?php
+            if (!$isEditing) {
+                echo "<div style='display:flex;align-items:center;margin:15px 0'>";
+                echo "<input type='hidden' name='op' value='add_translation' />";
+                submit_button('Adicionar tradução');
+                echo "</div>";
+            } else {
+                echo "<input type='hidden' name='op' value='edit_translation' />";
+                echo "<div style='display:flex;align-items:center;margin:15px 0'>";
+                submit_button('Salvar');
+                echo "<button type='submit' class='button button-primary' style='margin-left: 15px' id='cancel_edit'>Cancelar</button>";
+                echo "</div>";
+            }
+            ?>
 
-            <?php submit_button('Adicionar tradução'); ?>
         </form>
 
         <table class="wp-list-table">
@@ -129,11 +153,14 @@ function render_i2_wp_translator_translations_page()
                         <td><?php echo $unserialized_data['slug']; ?></td>
                         <td><?php echo $unserialized_data['translation_en']; ?></td>
                         <td><?php echo $unserialized_data['translation_pt']; ?></td>
-                        <td class="delete-icon">
-                            <form method="post" action="your-post-endpoint-url">
+                        <td>
+                            <form method="post">
                                 <input type="hidden" name="slug" value="<?php echo $unserialized_data['slug']; ?>">
                                 <input type='hidden' name='op' value='delete_translation' />
-                                <button type="submit"><i class="fa fa-trash"></i></button>
+                                <div style="display:flex;align-items:center">
+                                    <button type="button"><i class="fa fa-pen" id="edit_<?php echo $option_name; ?>"></i></button>
+                                    <button type="submit" style="margin-left:15px"><i class="fa fa-trash"></i></button>
+                                </div>
                             </form>
                         </td>
                     </tr>
@@ -162,14 +189,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['op'])) {
             'translation_pt' => $_POST['translation_pt']
         );
         add_option('i2_translation_' . $slug, $save_translation);
-        header('Location: ' . $_SERVER['HTTP_REFERER']);
+
+        header('Location: ' . home_url() . '/wp-admin/admin.php?page=i2-translation-settings');
+
         exit;
     }
 
 
     if ($_POST['op'] == 'delete_translation') {
         delete_option('i2_translation_' . $_POST['slug']);
-        header('Location: ' . $_SERVER['HTTP_REFERER']);
+
+        header('Location: ' . home_url() . '/wp-admin/admin.php?page=i2-translation-settings');
+
+        exit;
+    }
+
+    if ($_POST['op'] == 'edit_translation') {
+        $slug = str_replace(" ", "_", strtolower($_POST['translation_slug']));
+        $save_translation = array(
+            'slug' => $slug,
+            'translation_en' => $_POST['translation_en'],
+            'translation_pt' => $_POST['translation_pt']
+        );
+        update_option('i2_translation_' . $slug, $save_translation);
+        header('Location: ' . home_url() . '/wp-admin/admin.php?page=i2-translation-settings');
         exit;
     }
 }

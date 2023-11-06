@@ -28,3 +28,8 @@
 .delete-icon {
   cursor: pointer;
 }
+
+p.submit {
+  margin: initial;
+  padding: initial;
+}
