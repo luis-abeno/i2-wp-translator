@@ -9,8 +9,10 @@ document.addEventListener("DOMContentLoaded", function (event) {
     }
   });
 
-  document.getElementById("cancel_edit").addEventListener("click", function () {
-    window.location.href =
-      "<?php echo home_url(); ?>/wp-admin/admin.php?page=i2-translation-settings";
-  });
+  if (document.getElementById("cancel_edit")) {
+    document.getElementById("cancel_edit").addEventListener("click", function () {
+      window.location.href =
+        "<?php echo home_url(); ?>/wp-admin/admin.php?page=i2-translation-settings";
+    });
+  }
 });
